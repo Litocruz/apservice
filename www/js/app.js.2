@@ -1,0 +1,44 @@
+// We use an "Immediate Function" to initialize the application to avoid leaving anything behind in the global scope
+(function () {
+  /* ---------------------------------- Local Variables ---------------------------------- */
+  HomeView.prototype.template = Handlebars.compile($("#home-tpl").html());
+  ApListView.prototype.template = Handlebars.compile($("#ap-list-tpl").html());
+  ApView.prototype.template = Handlebars.compile($("#ap-tpl").html());
+
+  var service = new UnifiService();
+  service.initialize().done(function () {
+    router.addRoute('', function() {
+      console.log('empty');
+      $('body').html(new HomeView(service).render().$el);
+    });
+
+    router.addRoute('aps/:id', function(id) {
+      console.log('details');
+      service.findByMac(parseInt(id)).done(function(ap) {
+        $('body').html(new ApView(session).render().$el);
+      });
+    });
+
+    router.start();
+  });
+
+
+  /* --------------------------------- Event Registration -------------------------------- */
+  document.addEventListener('deviceready', function () {
+    if (navigator.notification) { // Override default HTML alert with native dialog
+      window.alert = function (message) {
+        navigator.notification.alert(
+          message,    // message
+          null,       // callback
+          "Ap Service UM", // title
+          'OK'        // buttonName
+          );
+      };
+    }
+  }, false);
+
+  /* ---------------------------------- Local Functions ---------------------------------- */
+
+
+
+}());
